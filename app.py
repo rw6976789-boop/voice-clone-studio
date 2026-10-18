@@ -92,6 +92,24 @@ with tab1:
                     st.error(f"❌ Error: {msg[:400]}")
 
     st.divider()
+    st.divider()
+    st.subheader("🎭 Style se voice banao (bina recording ke)")
+    st.caption("Apni awaz record kiye baghair — sirf style describe karo, Google wesi voice bana dega.")
+    p_name = st.text_input("Style voice ka naam", value="Countdown Narrator")
+    p_prompt = st.text_area(
+        "Voice style describe karo",
+        value=cloner.AFTER_SPOTLIGHT_STYLE_PROMPT,
+        height=120,
+        help="Pehle se bhara hua: After the Spotlight jesa countdown-narrator style (tez ~185 wpm, dramatic). Apne lafzon mein badal bhi sakte ho.")
+    if st.button("✨ Style Voice Banao", disabled=not (p_name.strip() and p_prompt.strip())):
+        with st.spinner("Style voice ban rahi hai..."):
+            try:
+                info = cloner.create_prompted_voice(client, p_name.strip(), p_prompt.strip())
+                st.success(f"✅ Style voice tayyar! ID: `{info['id']}`")
+            except Exception as e:
+                st.error(f"❌ Error: {str(e)[:400]}")
+
+    st.divider()
     st.subheader("Meri saved voices")
     voices = cloner._load_voices()
     if voices:
