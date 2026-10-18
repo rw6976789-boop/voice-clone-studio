@@ -116,6 +116,36 @@ def list_remote_voices(client):
         return {"error": str(e)[:200]}
 
 
+# ---- Prompted (style-described) voices ----
+# Measured from the "After the Spotlight" countdown channel (2026-10-18):
+# male narrator ~120Hz, brisk ~185 wpm, punchy ~0.5s pauses, dramatic tone.
+AFTER_SPOTLIGHT_STYLE_PROMPT = (
+    "A male documentary narrator in his late 30s with a clear mid-low voice. "
+    "Brisk, energetic countdown pacing \u2014 fast but always articulate, like a "
+    "YouTube documentary countdown channel. Dramatic, punchy delivery with "
+    "short sharp pauses between sentences for emphasis. Confident, slightly "
+    "sensational tone that builds intrigue and keeps momentum."
+)
+
+
+def create_prompted_voice(client, name: str, prompt_text: str) -> dict:
+    """Create a stored voice from a natural-language style description."""
+    resp = client.voices.create(
+        voice={
+            "type": "prompted",
+            "display_name": name,
+            "prompted": {"input": prompt_text},
+        },
+        store=True,
+    )
+    voice_id = getattr(resp, "id", None) or getattr(resp, "name", "")
+    info = {"id": voice_id, "display": name}
+    voices = _load_voices()
+    voices[name] = info
+    _save_voices(voices)
+    return info
+
+
 def chunk_script(text: str, max_chars: int = 4000) -> list:
     """Split script into chunks on paragraph boundaries."""
     text = re.sub(r"\r\n?", "\n", text).strip()
